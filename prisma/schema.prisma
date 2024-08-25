@@ -12,197 +12,81 @@ datasource db {
 
 enum Role {
   ADMIN
-  OWNER
-  CASHIER
-  MAINTAINER
+  MONITOR
+  USER
 }
 
-enum isActive {
-  true
-  false
-}
-
-enum LogType {
-  CREATE
-  UPDATE
-  DELETE
-  FIND
-}
-
-model Company {
-  id          String  @id @default(uuid())
-  logo        String?
-  name        String
-  description String?
-  email       String? @unique
-  phone       String?
-  alamat      String?
-  latitude    String?
-  longitude   String?
-
-  @@map("company")
+enum IsDeletedUser {
+  ACTIVE
+  INACTIVE
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role
-  is_active isActive @default(true)
+  id         String        @id @default(uuid())
+  image      String?
+  name       String
+  username   String        @unique
+  password   String
+  email      String        @unique
+  role       Role          @default(USER)
+  token      String
+  is_deleted IsDeletedUser @default(ACTIVE)
 
-  logs               Log[]
-  Orders             Orders[]
-  createdIngredients LogInventory[] @relation("CreatedIngredients")
-  updatedIngredients LogInventory[] @relation("UpdatedIngredients")
+  Attendance Attendance[]
+  Leave      Leave[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("user")
 }
 
-model Log {
-  id          String  @id @default(uuid())
-  type        LogType
-  description String
-  user        User?   @relation(fields: [user_id], references: [id])
-  user_id     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("log")
-}
-
-model Category {
-  id   String @id @default(uuid())
-  name String
-
-  Menu Menu[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("category")
-}
-
-model Menu {
-  id          String    @id @default(uuid())
-  image       String
-  name        String
-  category    Category? @relation(fields: [category_id], references: [id])
-  category_id String?
-  price       String
-  description String
-
-  OrderItems OrderItems[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("menu")
-}
-
-enum UnitOfMeasure {
-  GRAM
-  MILILITER
-}
-
-model Ingredients {
-  id       String        @id @default(uuid())
-  name     String
-  quantity String
-  unit     UnitOfMeasure
-
-  MenuIngredients MenuIngredients[]
-  LogInventory    LogInventory[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("ingredients")
-}
-
-model MenuIngredients {
-  id             String       @id @default(uuid())
-  Ingredients    Ingredients? @relation(fields: [ingredients_id], references: [id])
-  ingredients_id String?
-  quantity       String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("menu_ingredients")
-}
-
-enum OrderStatus {
+enum IsAttendance {
+  PRESENT
   PENDING
-  COMPLETED
+  LATE
+  ABSENT
 }
 
-//dilakukan oleh pelanggan
-model Orders {
-  id           String      @id @default(uuid())
-  User         User?       @relation(fields: [user_id], references: [id])
-  user_id      String?
-  table_number String?
-  total_price  String
-  order_status OrderStatus @default(PENDING)
+model Attendance {
+  id      String  @id @default(uuid())
+  User    User?   @relation(fields: [user_id], references: [id])
+  user_id String?
+  image   String?
 
-  OrderItems OrderItems[]
+  is_attendance IsAttendance @default(PENDING)
+  presented_at  DateTime?
+  created_at    DateTime     @default(now())
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("order")
+  @@map("attendance")
 }
 
-//dilakukan oleh pelanggan untuk setiap jumlah pesanan yang dipesan nya
-model OrderItems {
-  id        String   @id @default(uuid())
-  Orders    Orders?  @relation(fields: [orders_id], references: [id])
-  orders_id String?
-  Menu      Menu?    @relation(fields: [menu_id], references: [id])
-  menu_id   String?
-  quantity  String
-  price     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("order_items")
+enum LeaveReason {
+  ANNUAL_LEAVE
+  SICK_LEAVE
+  MATERNITY_LEAVE
+  PATERNITY_LEAVE
+  UNPAID_LEAVE
 }
 
-enum InventoryTransactionType {
-  USE
-  RESTOCK
+enum IsAcceptedLeave {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
-model LogInventory {
-  id                 String                   @id @default(uuid())
-  Ingredients        Ingredients?             @relation(fields: [ingredients_id], references: [id])
-  ingredients_id     String?
-  change_in_quantity String
-  transaction_type   InventoryTransactionType
+model Leave {
+  id      String      @id @default(uuid())
+  User    User?       @relation(fields: [user_id], references: [id])
+  user_id String?
+  reason  LeaveReason
+  from    DateTime
+  to      DateTime
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  is_accepted IsAcceptedLeave @default(PENDING)
 
-  createdBy   User?   @relation("CreatedIngredients", fields: [createdById], references: [id])
-  createdById String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  updatedBy   User?   @relation("UpdatedIngredients", fields: [updatedById], references: [id])
-  updatedById String?
-
-  @@map("log_inventory")
-}
-
-model Suppliers {
-  id           String @id @default(uuid())
-  name         String
-  contact_info String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("suppliers")
+  @@map("leave")
 }
