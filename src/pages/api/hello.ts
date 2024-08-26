@@ -11,8 +11,9 @@ export default async function handler(req, res) {
   // Data yang akan dimasukkan secara langsung
   const data = {
     email: "rizwar.adnanbyantara@gmail.com",
-    password: "byandanshufi321",
-    name: "rozroz",
+    password: "rizwar123",
+    name: "ruzruz",
+    role: "USER",
   };
 
   // Check if the user already exists
@@ -32,7 +33,8 @@ export default async function handler(req, res) {
     data: {
       email: data.email,
       password: hashedPassword,
-      role: "ADMIN",
+      name: data.name,
+      role: data.role,
     },
   });
 

@@ -14,8 +14,13 @@ export const RoleRoutes: Record<string, RoleRoutesInterface[]> = {
       path: "/dashboard",
       icon: <MdDashboard />,
     },
+    {
+      title: "User",
+      path: "/user",
+      icon: <MdDashboard />,
+    },
   ],
-  CASHIER: [
+  OWNER: [
     {
       title: "Dashboard",
       path: "/dashboard",

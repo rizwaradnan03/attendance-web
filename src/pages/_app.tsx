@@ -19,7 +19,7 @@ export default function App({
   const pathName = usePathname();
   return (
     <>
-      {/* <QueryClientProvider client={queryClient}> */}
+      <QueryClientProvider client={queryClient}>
       {ExceptionLayoutRoutes.includes(pathName) ? (
         <Component {...pageProps} />
       ) : (
@@ -29,7 +29,7 @@ export default function App({
           </DefaultLayout>
         </SessionProvider>
       )}
-      {/* </QueryClientProvider> */}
+      </QueryClientProvider>
     </>
   );
 }
